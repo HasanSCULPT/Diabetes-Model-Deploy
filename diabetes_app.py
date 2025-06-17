@@ -43,22 +43,4 @@ if st.button("Predict"):
     st.subheader("📊 Prediction Confidence")
     st.bar_chart({"Probability": {"Not Diabetic": prediction_proba[0], "Diabetic": prediction_proba[1]}})
 
-    # SHAP Explanation
-    st.subheader("🧠 Feature Contribution (SHAP)")
-    try:
-        explainer = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(input_data)
-
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.title("SHAP Feature Importance")
-
-        if isinstance(shap_values, list) and len(shap_values) > 1:
-            shap.summary_plot(shap_values[1], input_data, plot_type="bar", show=False)
-        else:
-            shap.summary_plot(shap_values, input_data, plot_type="bar", show=False)
-
-        st.pyplot(bbox_inches="tight")
-
-    except Exception as e:
-        st.warning("⚠️ SHAP explanation could not be generated.")
-        st.error(f"Error: {e}")
+    
