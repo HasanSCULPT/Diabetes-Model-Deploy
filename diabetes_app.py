@@ -1,34 +1,51 @@
-# diabetes_app.py
 import streamlit as st
-import numpy as np
 import joblib
+import numpy as np
+import shap
+import matplotlib.pyplot as plt
 
-# Load the model
-model = joblib.load("diabetes_model.pkl")
+# Load model
+model = joblib.load("best_rf_model_optuna.pkl")
 
-st.title("🩺 Diabetes Prediction")
-st.write("## By DSA 2025")
-
+# Streamlit UI
+st.set_page_config(page_title="Diabetes Predictor", layout="centered")
+st.title("🩺 Diabetes Prediction Centre App")
+st.write("## By HasanSCULPT,VIA DSA 2025")
 st.markdown("""
 Enter your medical information below to predict whether you're likely to have diabetes.
 """)
 
+
 # Input fields
-glucose = st.number_input("Glucose Level", min_value=0.0, step=1.0)
-blood_pressure = st.number_input("Blood Pressure", min_value=0.0, step=1.0)
-skin_thickness = st.number_input("Skin Thickness", min_value=0.0, step=1.0)
-insulin = st.number_input("Insulin", min_value=0.0, step=1.0)
-bmi = st.number_input("BMI", min_value=0.0, step=0.1)
-dpf = st.number_input("Diabetes Pedigree Function", min_value=0.0, step=0.01)
-age = st.number_input("Age", min_value=1.0, step=1.0)
+pregnancies = st.number_input("Pregnancies", min_value=0, step=1)
+glucose = st.number_input("Glucose Level", min_value=0)
+bloodpressure = st.number_input("Blood Pressure", min_value=0)
+skinthickness = st.number_input("Skin Thickness", min_value=0)
+insulin = st.number_input("Insulin Level", min_value=0)
+bmi = st.number_input("BMI", min_value=0.0, format="%.2f")
+dpf = st.number_input("Diabetes Pedigree Function (DPF)", min_value=0.0, format="%.3f")
+age = st.number_input("Age", min_value=0, step=1)
 
-# Predict
+# Predict button
 if st.button("Predict"):
-    input_data = np.array([[glucose, blood_pressure, skin_thickness,
-                            insulin, bmi, dpf, age]])
+    input_data = np.array([[pregnancies, glucose, bloodpressure, skinthickness, insulin, bmi, dpf, age]])
     prediction = model.predict(input_data)[0]
-    result = "🟢 Non-Diabetic" if prediction == 0 else "🔴 Diabetic"
-    
-    st.subheader("Prediction Result:")
-    st.success(result if prediction == 0 else result)
+    prediction_proba = model.predict_proba(input_data)[0]
 
+    if prediction == 1:
+        st.error(f"🛑 Prediction: **Diabetic** (Confidence: {prediction_proba[1]:.2%})")
+    else:
+        st.success(f"✅ Prediction: **Not Diabetic** (Confidence: {prediction_proba[0]:.2%})")
+
+    # Show probability bar chart
+    st.subheader("📊 Prediction Confidence")
+    st.bar_chart({"Probability": {"Not Diabetic": prediction_proba[0], "Diabetic": prediction_proba[1]}})
+
+    # SHAP Explanation
+    st.subheader("🧠 Feature Contribution (SHAP)")
+    explainer = shap.Explainer(model)
+    shap_values = explainer(input_data)
+
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    shap.plots.waterfall(shap_values[0], show=False)
+    st.pyplot(bbox_inches='tight')
