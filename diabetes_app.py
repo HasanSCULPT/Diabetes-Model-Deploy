@@ -3,6 +3,8 @@ import joblib
 import numpy as np
 import shap
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
 
 # Load model
 model = joblib.load("best_rf_model_optuna.pkl")
@@ -10,7 +12,7 @@ model = joblib.load("best_rf_model_optuna.pkl")
 # Streamlit UI
 st.set_page_config(page_title="Diabetes Predictor", layout="centered")
 st.title("🩺 Diabetes Prediction Centre App")
-st.write("## By HasanSCULPT,VIA DSA 2025")
+st.write("## By HasanSCULPT | DSA 2025")
 st.markdown("""
 Enter your medical information below to predict whether you're likely to have diabetes.
 """)
