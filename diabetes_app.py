@@ -44,6 +44,7 @@ if st.button("Predict"):
     st.bar_chart({"Probability": {"Not Diabetic": prediction_proba[0], "Diabetic": prediction_proba[1]}})
 
     # SHAP Explanation
+    warnings.filterwarnings("ignore")
     explainer = shap.Explainer(model)
 shap_values = explainer(input_data)
 
