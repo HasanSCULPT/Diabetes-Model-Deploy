@@ -44,10 +44,10 @@ if st.button("Predict"):
     st.bar_chart({"Probability": {"Not Diabetic": prediction_proba[0], "Diabetic": prediction_proba[1]}})
 
     # SHAP Explanation
-    st.subheader("🧠 Feature Contribution (SHAP)")
-    explainer = shap.Explainer(model)
-    shap_values = explainer(input_data)
+    explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(input_data)
 
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    shap.plots.waterfall(shap_values[0], show=False)
-    st.pyplot(bbox_inches='tight')
+# Use matplotlib to plot manually
+plt.title("SHAP Feature Impact")
+shap.summary_plot(shap_values, input_data, plot_type="bar", show=False)
+st.pyplot(plt)
